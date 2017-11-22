@@ -1,0 +1,35 @@
+{
+  "name": "timkelty/craft3-cloudinary",
+  "description": "Cloudinary integration for Craft CMS",
+  "version": "0.1.0",
+  "type": "craft-plugin",
+  "keywords": [
+    "cloudinary",
+    "cms",
+    "craftcms",
+    "flysystem",
+    "yii2"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tim Kelty",
+      "homepage": "https://github.com/timkelty"
+    }
+  ],
+  "require": {
+    "craftcms/cms": "^3.0.0-beta.24",
+    "enl/flysystem-cloudinary": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "craft\\cloudinary\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "Cloudinary",
+    "handle": "cloudinary",
+    "changelogUrl": "https://raw.githubusercontent.com/timkelty/craft3-cloudinary/master/CHANGELOG.md",
+    "downloadUrl": "https://github.com/timkelty/craft3-cloudinary/archive/master.zip"
+  }
+}
