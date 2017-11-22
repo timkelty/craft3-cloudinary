@@ -1,22 +1,10 @@
 <?php
-/**
- * @link      https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   MIT
- */
-
 namespace craft\cloudinary;
 
 use Craft;
 use craft\base\FlysystemVolume;
 use Enl\Flysystem\Cloudinary\ApiFacade as CloudinaryClient;
 use Enl\Flysystem\Cloudinary\CloudinaryAdapter;
-// use OpenCloud\Common\Service\Catalog;
-// use OpenCloud\Common\Service\CatalogItem;
-// use OpenCloud\Identity\Resource\Token;
-// use OpenCloud\OpenStack;
-// use OpenCloud\Rackspace;
-use yii\base\UserException;
 
 /**
  * Class Volume
@@ -29,11 +17,6 @@ use yii\base\UserException;
  */
 class Volume extends FlysystemVolume
 {
-    /**
-     * Cache key to use for caching purposes
-     */
-    const CACHE_KEY_PREFIX = 'cloudinary.';
-
     // Static
     // =========================================================================
 
@@ -76,6 +59,83 @@ class Volume extends FlysystemVolume
     // Public Methods
     // =========================================================================
 
+    public function getFileMetadata(string $uri): array
+    {
+        return parent::getFileMetadata($this->_removeExtension($uri));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createFileByStream(string $path, $stream, array $config)
+    {
+        parent::createFileByStream($this->_removeExtension($path), $stream, $config);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateFileByStream(string $path, $stream, array $config)
+    {
+        parent::updateFileByStream($this->_removeExtension($path), $stream, $config);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createDir(string $path)
+    {
+        parent::createDir($this->_removeExtension($path));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fileExists(string $path): bool
+    {
+        return parent::fileExists($this->_removeExtension($path));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function folderExists(string $path): bool
+    {
+        return parent::folderExists($this->_removeExtension($path));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function renameFile(string $path, string $newPath)
+    {
+        parent::renameFile($this->_removeExtension($path), $this->_removeExtension($newPath));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteFile(string $path)
+    {
+        parent::deleteFile($this->_removeExtension($path));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function copyFile(string $path, string $newPath)
+    {
+        parent::copyFile($this->_removeExtension($path), $this->_removeExtension($newPath));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFileStream(string $uriPath)
+    {
+        return parent::getFileStream($this->_removeExtension($uriPath));
+    }
+
     /**
      * @inheritdoc
      */
@@ -92,7 +152,7 @@ class Volume extends FlysystemVolume
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['cloudName', 'apiKey'], 'required'];
+        $rules[] = [['cloudName', 'apiKey', 'apiSecret'], 'required'];
 
         return $rules;
     }
@@ -117,90 +177,6 @@ class Volume extends FlysystemVolume
         return rtrim(rtrim($this->url, '/').'/'.$this->subfolder, '/').'/';
     }
 
-
-    // Overrides to ensure whitespaces and non-ASCII characters work.
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public function getFileMetadata(string $uri): array
-    {
-        return parent::getFileMetadata(urlencode($uri));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createFileByStream(string $path, $stream, array $config)
-    {
-        parent::createFileByStream(urlencode($path), $stream, $config);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateFileByStream(string $path, $stream, array $config)
-    {
-        parent::updateFileByStream(urlencode($path), $stream, $config);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createDir(string $path)
-    {
-        parent::createDir(urlencode($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function fileExists(string $path): bool
-    {
-        return parent::fileExists(urlencode($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function folderExists(string $path): bool
-    {
-        return parent::folderExists(urlencode($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function renameFile(string $path, string $newPath)
-    {
-        parent::renameFile(urlencode($path), urlencode($newPath));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function deleteFile(string $path)
-    {
-        parent::deleteFile(urlencode($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function copyFile(string $path, string $newPath)
-    {
-        parent::copyFile(urlencode($path), urlencode($newPath));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getFileStream(string $uriPath)
-    {
-        return parent::getFileStream(urlencode($uriPath));
-    }
-
     // Protected Methods
     // =========================================================================
 
@@ -209,13 +185,12 @@ class Volume extends FlysystemVolume
      *
      * @return CloudinaryAdapter
      */
-    protected function createAdapter()
+    protected function createAdapter(): CloudinaryAdapter
     {
         $client = static::client([
             'cloud_name' => $this->cloudName,
             'api_key' => $this->apiKey,
             'api_secret' => $this->apiSecret,
-            'overwrite' => $this->overwrite,
         ]);
 
         return new CloudinaryAdapter($client);
@@ -224,5 +199,18 @@ class Volume extends FlysystemVolume
     protected static function client(array $config = []): CloudinaryClient
     {
         return new CloudinaryClient($config);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    private function _removeExtension(string $path)
+    {
+        $pathInfo = pathinfo($path);
+
+        return implode('/', [
+            $pathInfo['dirname'],
+            $pathInfo['filename'],
+        ]);
     }
 }

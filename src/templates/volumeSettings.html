@@ -6,7 +6,6 @@
     name: 'apiKey',
     value: volume.apiKey,
     errors: volume.getErrors('apiKey'),
-    class: 'cloudinary-api-key',
     required: true
 }) }}
 
@@ -16,7 +15,6 @@
     name: 'apiSecret',
     value: volume.apiSecret,
     errors: volume.getErrors('apiSecret'),
-    class: 'cloudinary-api-secret',
     required: true
 }) }}
 
@@ -26,41 +24,5 @@
     name: 'cloudName',
     value: volume.cloudName,
     errors: volume.getErrors('cloudName'),
-    class: 'cloudinary-cloud-name',
     required: true
 }) }}
-
-{# {% set containerInput %}
-    <div class="flex">
-        {{ forms.select({
-            id: 'container',
-            name: 'container',
-            options: { (volume.container): volume.container },
-            value: volume.container,
-            readonly: true,
-            class: 'cloudinary-container-select',
-            errors: volume.getErrors('container')
-        }) }}
-        <div class="btn cloudinary-refresh-containers">{{ "Refresh"|t('cloudinary') }}</div>
-        <div class="spinner hidden"></div>
-    </div>
-{% endset %}
-
-{{ forms.field({
-    label: "Container"|t('cloudinary'),
-    id: 'container'
-}, containerInput) }}
- #}
-{# {{ forms.textField({
-    label: "Subfolder"|t('cloudinary'),
-    instructions: "If you want to use a container’s subfolder as a Volume, specify the path to use here."|t('cloudinary'),
-    id: 'subfolder',
-    class: 'ltr',
-    name: 'subfolder',
-    value: volume.subfolder,
-    errors: volume.getErrors('subfolder'),
-    required: false,
-    placeholder: "path/to/subfolder"|t('cloudinary')
-}) }} #}
-
-{% do view.registerAssetBundle("craft\\cloudinary\\CloudinaryBundle") %}
