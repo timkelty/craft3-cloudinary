@@ -56,6 +56,11 @@ class Volume extends FlysystemVolume
      */
     public $cloudName = '';
 
+    /**
+     * @var bool Overwrite existing files on Cloudinary
+     */
+    public $overwrite = true;
+
     // Public Methods
     // =========================================================================
 
@@ -191,6 +196,7 @@ class Volume extends FlysystemVolume
             'cloud_name' => $this->cloudName,
             'api_key' => $this->apiKey,
             'api_secret' => $this->apiSecret,
+            'overwrite' => $this->overwrite,
         ]);
 
         return new CloudinaryAdapter($client);
