@@ -1,7 +1,6 @@
 {
   "name": "timkelty/craft3-cloudinary",
   "description": "Cloudinary integration for Craft CMS",
-  "version": "0.1.0",
   "type": "craft-plugin",
   "keywords": [
     "cloudinary",
