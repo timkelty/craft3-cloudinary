@@ -1,0 +1,111 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    label: "Access Key ID"|t('aws-s3'),
+    id: 'keyId',
+    name: 'keyId',
+    value: volume.keyId,
+    errors: volume.getErrors('keyId'),
+    class: 's3-key-id',
+    instructions: 'You can leave this field empty if you are using an EC2 instance with an applicable IAM role assigne.'|t('aws-s3')
+}) }}
+
+{{ forms.textField({
+    label: "Secret Access Key"|t('aws-s3'),
+    id: 'secret',
+    name: 'secret',
+    value: volume.secret,
+    errors: volume.getErrors('secret'),
+    class: 's3-secret-key',
+    instructions: 'You can leave this field empty if you are using an EC2 instance with an applicable IAM role assigne.'|t('aws-s3')
+}) }}
+
+{% set bucketInput %}
+    <div class="flex">
+        {{ forms.select({
+            id: 'bucket',
+            name: 'bucket',
+            options: { (volume.bucket): volume.bucket },
+            value: volume.bucket,
+            readonly: true,
+            class: 's3-bucket-select'
+        }) }}
+        <div class="btn s3-refresh-buckets">{{ "Refresh"|t('aws-s3') }}</div>
+        <div class="spinner hidden"></div>
+    </div>
+
+    <input type="hidden" name="region" class="s3-region" value="{{ volume.region }}" />
+{% endset %}
+
+{{ forms.field({
+    label: "Bucket"|t('aws-s3'),
+    id: 'bucket'
+}, bucketInput) }}
+
+{{ forms.textField({
+    label: "Subfolder"|t('aws-s3'),
+    instructions: "If you want to use a bucket’s subfolder as a Volume, specify the path to use here."|t('aws-s3'),
+    id: 'subfolder',
+    class: 'ltr',
+    name: 'subfolder',
+    value: volume.subfolder,
+    errors: volume.getErrors('subfolder'),
+    required: false,
+    placeholder: "path/to/subfolder"|t('aws-s3')
+}) }}
+
+<hr>
+
+{# forms.selectField({
+    label: "Storage class"|t('aws-s3'),
+    instructions: "Click <a href=\"{link}\" title=\"Storage classes\" target=\"_blank\">here</a> for details."|t('aws-s3', {'link': "https://aws.amazon.com/s3/storage-classes/"}),
+    id: 'storageClass',
+    name: 'storageClass',
+    options: storageClasses,
+    value: volume.storageClass
+}) }#}
+
+{% set cacheInput %}
+    {% set expires = (volume.expires|length > 0 ? volume.expires|split(' ') : ['', ''])%}
+
+    <div class="flex">
+        <div>
+            {{ forms.text({
+                id: 'expiresAmount',
+                value: expires[0],
+                size: 2,
+                class: 's3-expires-amount'
+            }) }}
+        </div>
+        {{ forms.select({
+            id: 'expiresPeriod',
+            options: periods,
+            value: expires[1],
+            class: 's3-expires-period'
+        }) }}
+    </div>
+    {{ forms.hidden({
+        name: "expires",
+        value: volume.expires,
+        class: "expires-combined"
+    }) }}
+{% endset %}
+
+{{ forms.field({
+    label: "Cache Duration"|t,
+    instructions: "The Cache-Control duration that assets should be uploaded to the cloud with.",
+    id: 'cacheDuration',
+}, cacheInput) }}
+
+{{ forms.textField({
+    label: "CloudFront distribution ID"|t('aws-s3'),
+    instructions: "If you're using CloudFront as CDN for your Assets, enter the distribution ID here so Assets can purge the files from CDN."|t('aws-s3'),
+    id: 'cfDistributionId',
+    class: 'ltr',
+    name: 'cfDistributionId',
+    value: volume.cfDistributionId,
+    errors: volume.getErrors('cfDistributionId'),
+    required: false
+}) }}
+
+{% do view.registerAssetBundle("craft\\awss3\\AwsS3Bundle") %}
