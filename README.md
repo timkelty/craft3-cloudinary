@@ -1,6 +1,6 @@
-**Warning**
-NOT in active development. May work for your needs, but has several limitations.
-If anyone cares to take of development, please contact me.
+>> **Warning**
+>> NOT in active development. May work for your needs, but has several limitations.
+>> If anyone cares to take of development, please contact me.
 
 Cloudinary for Craft CMS 3
 =======================
